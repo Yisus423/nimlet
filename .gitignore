@@ -1,0 +1,21 @@
+nimlet
+nimterm_preview
+build/
+dist/
+nimcache/
+tests/all_tests
+*.dSYM/
+.cursor/
+.nimlet/
+.nimble/
+SCOPE.md
+AGENTS.md
+nimble.develop
+nimble.paths
+nimbledeps
+
+# Docs site (Astro)
+docs/node_modules/
+docs/dist/
+docs/.astro/
+docs/*.tsbuildinfo

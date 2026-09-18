@@ -1,0 +1,150 @@
+---
+title: Quickstart
+description: Set an API key and run your first turn with nimlet.
+---
+
+This guide assumes the `nimlet` binary is already installed and available on
+your `PATH`. Give it a provider credential, then run it from the workspace you
+want the agent to inspect or change. No language toolchain or source checkout is
+required to use nimlet.
+
+## Install on macOS
+
+Download the latest release tarball (binary plus bundled OpenSSL and PCRE):
+
+```sh
+curl -fsSL https://nimlet.niminal.dev/install.sh | sh
+```
+
+The installer puts nimlet under `~/.local/lib/nimlet` and links `~/.local/bin/nimlet`.
+Add `~/.local/bin` to your `PATH` if it is not already there.
+
+Pin a release with `NIMLET_VERSION=v0.1.0` before the curl command, or override
+the install location with `NIMLET_INSTALL_DIR` / `NIMLET_BIN_DIR`.
+
+### From source
+
+To build from a source checkout, install Nim 2.0 or later and run
+`nimble release`, which writes `build/nimlet`.
+
+## Configure provider access
+
+```sh
+export OPENROUTER_API_KEY=your-key
+```
+
+OpenRouter is the default provider. You can use another wired provider by
+exporting its key, then selecting it with `--provider` or `/provider`:
+
+| Provider | Credential environment variable |
+| --- | --- |
+| Anthropic | `ANTHROPIC_API_KEY` |
+| Google Gemini API | `GEMINI_API_KEY`, `GOOGLE_API_KEY`, or `GOOGLE_GENERATIVE_AI_API_KEY` |
+| Hyper | `HYPER_API_KEY` |
+| Mistral | `MISTRAL_API_KEY` |
+| OpenAI | `OPENAI_API_KEY` |
+| OpenCode Go or Zen | `OPENCODE_API_KEY` |
+| OpenRouter | `OPENROUTER_API_KEY` |
+| Codex | Sign in with `/login` inside nimlet |
+
+You can store credentials in `~/.nimlet/auth.json` instead. See
+[configuration](/guides/configuration/) for the file format and provider
+options.
+
+## Start your first turn
+
+Run nimlet from the project directory:
+
+```sh
+cd /path/to/your/project
+nimlet
+```
+
+Try a small request:
+
+```text
+Explain how this project runs its tests, then suggest the smallest useful fix
+for the failing parser test.
+```
+
+The interactive footer shows the active provider, model, thinking level,
+context usage, token totals, cost when model pricing is known, and queued
+messages. File reads, searches, and workspace edits are built in. Shell
+commands normally ask for approval the first time.
+
+## One-shot and piped input
+
+Pass a prompt after the flags for a turn that exits when it finishes:
+
+```sh
+nimlet fix the failing parser test
+```
+
+Use `--interactive` to run that initial prompt and then keep the REPL open:
+
+```sh
+nimlet --interactive inspect the parser tests
+```
+
+Use `--print` when stdout must contain only the final response. Warnings and
+errors go to stderr:
+
+```sh
+nimlet --print "Summarize the current README"
+cat README.md | nimlet --print "Summarize this text"
+```
+
+Piped input is added before the optional command-line prompt. Use
+`--no-session` for a run that is not written to the session directory.
+
+## Resume a session
+
+Sessions are saved automatically. Pick up where you left off:
+
+```sh
+nimlet --resume                      # latest session for this workspace
+nimlet --session 1789233281025102    # one specific session
+```
+
+Inside the TUI, `/resume` opens a picker and `/new` starts fresh. See
+[Sessions](/guides/sessions/) for naming, forking, export, and recovery.
+
+## Flags for scripts and CI
+
+These flags apply to one process only and are never written to your config:
+
+| Flag | Purpose |
+| --- | --- |
+| `--provider NAME` | Provider for this run |
+| `--model ID` | Model for this run |
+| `--thinking LEVEL` | Thinking level for this run |
+| `--api-key KEY` | In-memory API key override |
+| `--tools LIST` | Restrict tools (`read,grep,glob` or `none`) |
+| `--yolo` | Auto-approve all tools |
+| `--approve` | Load project customizations without the trust prompt |
+| `--no-approve` | Skip project customizations |
+| `--no-fullscreen` | Keep terminal scrollback instead of the alternate screen |
+
+Headless runs (`-p`, `--mode json`, `--mode rpc`) have no approval UI, so tools
+run without prompting. Narrow the tool list when you can:
+
+```sh
+nimlet -p "summarize the README" --tools read
+```
+
+The full flag list is in [Commands and shortcuts](/reference/commands/#cli-flags).
+
+## Project trust
+
+The first time you open a repository that ships nimlet customizations (project
+tools, extensions, skills, prompts, themes, or `.nimlet/config.json`), nimlet
+asks whether to load them. The default is no. Answer yes with `/trust on`, or
+for one run with `--approve`. See [Security](/guides/security/) for what trust
+covers.
+
+## Next steps
+
+- [Interactive TUI](/guides/interactive-tui/) for queues, mentions, and keybindings
+- [Models and providers](/guides/models-and-providers/) to switch models
+- [Plan and act mode](/guides/plan-and-act/) for read-only investigation
+- [Commands and shortcuts](/reference/commands/) for the complete command list
